@@ -1,5 +1,4 @@
 import webviewHTML from "../webview/index.html";
-// import * as webviewHTML from "../webview/index.html";
 import * as vscode from 'vscode';
 
 
@@ -34,7 +33,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function getWebviewContent(): string {
-    console.log("@@1", webviewHTML);
     return webviewHTML;
 }
 
