@@ -1,5 +1,6 @@
 import webviewHTML from "../webview/index.html";
 import * as vscode from 'vscode';
+import { Message } from "./message";
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -27,8 +28,15 @@ export function activate(context: vscode.ExtensionContext) {
                     undefined,
                     context.subscriptions
                 );
+                currentPanel.webview.onDidReceiveMessage((mes: Message) => {
+                    if (mes.type === "log") {
+                        console.log("webview log:", mes.message);
+                    }
+                });
+
             }
         })
+
     );
 }
 

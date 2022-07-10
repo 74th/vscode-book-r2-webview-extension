@@ -13,6 +13,17 @@
     <h1 id="lines-of-code-counter">0</h1>
 
     <script>
+      const vscode = acquireVsCodeApi();
+
+      function log(mes) {
+        vscode.postMessage({
+          type: "log",
+          message: mes,
+        });
+      }
+
+      log("in web view!!");
+      console.log("@@1");
       const counter = document.getElementById("lines-of-code-counter");
 
       let count = 0;
