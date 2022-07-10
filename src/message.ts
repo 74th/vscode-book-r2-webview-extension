@@ -4,4 +4,16 @@ export interface LogMessage {
     message: string
 }
 
-export type Message = LogMessage;
+export interface CursorColorMessage {
+    type: "cursor-color";
+    color: string
+}
+
+export interface ChangeColorMessage {
+    type: "change-color";
+    newColor: string
+}
+
+
+export type WebView2ExtensionMessage = LogMessage;
+export type Extension2WebViewMessage = CursorColorMessage;

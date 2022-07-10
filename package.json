@@ -24,7 +24,7 @@
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",
-    "compile": "webpack",
+    "compile": "run-s compile-webview compile-extension",
     "compile-extension": "webpack",
     "compile-webview": "webpack -c webview.webpack.config.js",
     "watch": "webpack --watch",
