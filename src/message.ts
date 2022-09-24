@@ -4,16 +4,21 @@ export interface LogMessage {
     message: string
 }
 
+// カラーコード
+export interface ColorCode {
+    red: number;
+    green: number;
+    blue: number;
+}
+
+// カーソルのカラーコードを伝えるメッセージ
 export interface CursorColorMessage {
     type: "cursor-color";
-    color: string
+    color: ColorCode | null;
 }
 
+// WebViewからカラーコード変更を伝えるメッセージ
 export interface ChangeColorMessage {
     type: "change-color";
-    newColor: string
+    newColor: ColorCode;
 }
-
-
-export type WebView2ExtensionMessage = LogMessage;
-export type Extension2WebViewMessage = CursorColorMessage;
