@@ -2,7 +2,6 @@ import { makeColorCodeText } from "./colorCode";
 import { ChangeColorMessage, ColorCode, CursorColorMessage } from "./message";
 
 const vscode = acquireVsCodeApi();
-let editorLoading = false;
 
 function log(mes: string) {
     vscode.postMessage({
@@ -27,10 +26,6 @@ function loadColorCode(): ColorCode {
 
 // スライダーを操作（ドラッグ中）
 function slideColor() {
-    if (editorLoading) {
-        return;
-    }
-
     // カラーコードを表示
     const newColor = loadColorCode();
     const codeText = makeColorCodeText(newColor);
@@ -45,11 +40,6 @@ sliderBlue.addEventListener("input", slideColor);
 
 // 現在の色を送る
 function setColor() {
-    log(`setColor editorLoading:${editorLoading}`);
-    if (editorLoading) {
-        return;
-    }
-
     const newColor = loadColorCode();
 
     // 拡張機能内に送信
@@ -69,8 +59,6 @@ function receiveEditorColorCode(message: CursorColorMessage) {
     }
     const color = message.color;
 
-    editorLoading = true;
-
     const codeText = makeColorCodeText(message.color);
     sliderRed.valueAsNumber = color.red;
     sliderGreen.valueAsNumber = color.green;
@@ -78,10 +66,6 @@ function receiveEditorColorCode(message: CursorColorMessage) {
 
     // WebView 内で表示
     colorCell.style.backgroundColor = codeText;
-
-    setTimeout(() => {
-        editorLoading = false;
-    }, 100);
 }
 
 window.addEventListener("message", (e) => {
