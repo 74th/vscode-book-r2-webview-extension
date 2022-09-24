@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
                             console.log("webview log:", mes.message);
                         }
                         if (mes.type === "change-color") {
-                            if (latestEditor) {
+                            if (latestEditor && !latestEditor.document.isClosed) {
                                 colorPicker.changeToNewColor(latestEditor, mes.newColor);
                             }
                         }
@@ -58,23 +58,12 @@ export function activate(context: vscode.ExtensionContext) {
                 disposables.push(
                     vscode.window.onDidChangeTextEditorSelection(
                         (e) => {
+                            console.log(`onDidChangeTextEditorSelection`);
                             latestEditor = e.textEditor;
                             colorPicker.changeCursor(e.textEditor);
                         }
                     )
                 );
-
-                // 表示状態の変更
-                disposables.push(
-                    panel.onDidChangeViewState(
-                        (e) => {
-                            if (e.webviewPanel.visible && vscode.window.activeTextEditor) {
-                                colorPicker.changeCursor(vscode.window.activeTextEditor);
-                            }
-                        },
-                    ),
-                );
-
 
                 // webview リソースが削除された時のクリーンアップ
                 disposables.push(
@@ -104,8 +93,8 @@ class ColorPicker {
 
     public webViewPanel: vscode.WebviewPanel | null = null;
 
-    /**
-     * カーソル位置から、前6文字目、後ろ7文目を読み取る
+    /*
+     * カーソル位置から7文を読み取る
      */
     private readCursorText = (editor: vscode.TextEditor): string => {
         // ドキュメント
@@ -164,6 +153,7 @@ class ColorPicker {
 
         } catch (NotColorCodeException) {
             // カーソルのテキストが読み取れなかった
+            return;
         }
 
         // カーソルのカラーコードとしてメッセージをWebViewに送る
@@ -175,6 +165,17 @@ class ColorPicker {
 
     // カーソル位置のテキスト
     changeToNewColor = (editor: vscode.TextEditor, newColor: ColorCode) => {
+        // カーソルのテキスト読み取り
+        const text = this.readCursorText(editor);
+
+        // テキストからカラーコード読み取り
+        try {
+            this.readColorCode(text);
+        } catch (NotColorCodeException) {
+            // カーソルのテキストがカラーコードではないので編集しない
+            return;
+        }
+
         // ドキュメント
         const document = editor.document;
 
