@@ -21,7 +21,9 @@ const sliderRed = document.getElementById("slider-red") as HTMLInputElement;
 const sliderGreen = document.getElementById("slider-green") as HTMLInputElement;
 const sliderBlue = document.getElementById("slider-blue") as HTMLInputElement;
 
-// スライダーの色を読み、カラーコードに変換
+/**
+ *  スライダーの色を読み、カラーコードに変換
+ */
 function loadColorCode(): ColorCode {
     const red = sliderRed.valueAsNumber;
     const green = sliderGreen.valueAsNumber;
@@ -29,7 +31,9 @@ function loadColorCode(): ColorCode {
     return { red, green, blue };
 }
 
-// スライダーを操作（ドラッグ中）
+/**
+ * スライダーを操作（ドラッグ中）
+ */
 function slideColor() {
     // カラーコードを表示
     const newColor = loadColorCode();
@@ -45,7 +49,9 @@ sliderRed.addEventListener("input", slideColor);
 sliderGreen.addEventListener("input", slideColor);
 sliderBlue.addEventListener("input", slideColor);
 
-// 現在の色を送る
+/**
+ * 現在の色を送る
+ */
 function changeSlider() {
     const newColor = loadColorCode();
 
@@ -60,15 +66,23 @@ sliderRed.addEventListener("change", changeSlider);
 sliderGreen.addEventListener("change", changeSlider);
 sliderBlue.addEventListener("change", changeSlider);
 
+/**
+ * エディタから色を受信
+ */
 function receiveColorFromEditor(message: CursorColorMessage) {
     if (!message.color) {
         return;
     }
+    // 受け取った色の表示
     showColor(message.color);
 
+    // ステートとして保存
     saveState(message.color);
 }
 
+/**
+ * 色の表示
+ */
 function showColor(color: ColorCode) {
     const codeText = makeColorCodeText(color);
     sliderRed.valueAsNumber = color.red;
@@ -79,6 +93,9 @@ function showColor(color: ColorCode) {
     colorCell.style.backgroundColor = codeText;
 }
 
+/**
+ * ステートの読み込み
+ */
 function loadState() {
     const state: State | undefined = vscode.getState();
     if (!state) {
@@ -88,16 +105,21 @@ function loadState() {
     showColor(state.pickerColor);
 }
 
+/**
+ * ステートの保存
+ */
 function saveState(color: ColorCode) {
     vscode.setState({ pickerColor: color } as State);
 }
 
+// 拡張機能からのメッセージの受信
 window.addEventListener("message", (e) => {
     const message = e.data as CursorColorMessage;
-    log(`receive message ${JSON.stringify(e.data)}`);
+
     if (message.type === "cursor-color") {
         receiveColorFromEditor(e.data as CursorColorMessage);
     }
 });
 
+// ステートから読み込む
 loadState();

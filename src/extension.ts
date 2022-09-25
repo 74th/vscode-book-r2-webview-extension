@@ -139,10 +139,11 @@ class ColorPicker {
         return { red, green, blue } as ColorCode;
     };
 
-    // カーソルが変わるたびに処理する
+    /**
+     * カーソルが変わるたびに、カーソル位置のテキストを読み取り、
+     * WebView に送る
+     */
     changeCursor = (editor: vscode.TextEditor) => {
-        console.log("change corsor");
-
         // カーソルのテキスト読み取り
         const text = this.readCursorText(editor);
 
@@ -196,6 +197,9 @@ class ColorPicker {
     };
 }
 
+/**
+ * WebView から参照できるURL に書き換える
+ */
 function getWebviewContent(resourceRoot: string): string {
     // webview から参照できる URL に置き換える
     return webviewHTML.replace("{{resourceRoot}}", resourceRoot);
