@@ -16,7 +16,7 @@ const extensionConfig = {
     entry: "./src/webview.ts",
     output: {
         path: path.resolve(__dirname, "webview"),
-        filename: "main.js",
+        filename: "webview.js",
     },
     resolve: {
         extensions: [".ts", ".js"],

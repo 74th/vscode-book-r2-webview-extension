@@ -4,17 +4,26 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "compile",
+      "label": "build extension",
+      "type": "shell",
+      "command": ["npx", "webpack", "-c", "extension.webpack.config.js"],
       "problemMatcher": "$ts-webpack-watch",
       "isBackground": true,
-      "presentation": {
-        "reveal": "never",
-        "group": "watchers"
-      },
       "group": {
         "kind": "build",
         "isDefault": true
+      },
+      "dependsOn": ["build webview"]
+    },
+    {
+      "label": "build webview",
+      "type": "shell",
+      "command": ["npx", "webpack", "-c", "webview.webpack.config.js"],
+      "problemMatcher": "$ts-webpack-watch",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": false
       }
     },
     {
