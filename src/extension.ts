@@ -9,94 +9,12 @@ import { makeColorCodeText } from "./colorCode";
 export function activate(context: vscode.ExtensionContext) {
 
     let panel: vscode.WebviewPanel | null = null;
-    const colorPicker = new ColorPicker();
     let latestEditor: vscode.TextEditor | null = null;
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('color-picker.show', () => {
-            if (panel) {
-                panel.reveal(vscode.ViewColumn.One);
-            } else {
-                const disposables: vscode.Disposable[] = [];
-
-                panel = vscode.window.createWebviewPanel(
-                    'color-picker',
-                    'color picker',
-                    vscode.ViewColumn.One,
-                    {
-                        enableScripts: true,
-
-                        // 拡張機能内、ワークスペース内以外のファイルを webview 内に持ち込む場合
-                        // localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'webview'))],
-                    }
-                );
-                colorPicker.webViewPanel = panel;
-
-                // extension 内のファイルパス
-                const webviewResourceRootLocalPath = vscode.Uri.file(path.join(context.extensionPath, 'webview'));
-                // webview 内のファイルパス
-                const webviewResourceRootInWebviewPath = panel.webview.asWebviewUri(webviewResourceRootLocalPath);
-
-                // webview の HTML を設定する
-                panel.webview.html = getWebviewContent(webviewResourceRootInWebviewPath.toString());
-
-                // webview からのメッセージの受取
-                disposables.push(
-                    panel.webview.onDidReceiveMessage((mes: LogMessage | ChangeColorMessage) => {
-                        if (mes.type === "log") {
-                            console.log("webview log:", mes.message);
-                        }
-                        if (mes.type === "change-color") {
-                            if (latestEditor && !latestEditor.document.isClosed) {
-                                colorPicker.changeToNewColor(latestEditor, mes.newColor);
-                            }
-                        }
-                    })
-                );
-
-                // カーソルの変更
-                disposables.push(
-                    vscode.window.onDidChangeTextEditorSelection(
-                        (e) => {
-                            console.log(`onDidChangeTextEditorSelection`);
-                            latestEditor = e.textEditor;
-                            colorPicker.changeCursor(e.textEditor);
-                        }
-                    )
-                );
-
-                // webview リソースが削除された時のクリーンアップ
-                disposables.push(
-                    panel.onDidDispose(
-                        () => {
-                            // WebViewPanel のインスタンス解除
-                            colorPicker.webViewPanel = null;
-                            panel = null;
-
-                            // WebView を開いてから仕込んだイベントを解除する
-                            disposables.forEach((disposes) => { disposes.dispose(); });
-                        },
-                    )
-                );
-
-            }
-        })
-
-    );
-
-
-}
-
-class NotColorCodeException extends Error { };
-
-class ColorPicker {
-
-    public webViewPanel: vscode.WebviewPanel | null = null;
 
     /*
      * カーソル位置から7文を読み取る
      */
-    private readCursorText = (editor: vscode.TextEditor): string => {
+    const readCursorText = (editor: vscode.TextEditor): string => {
         // ドキュメント
         const document = editor.document;
 
@@ -119,7 +37,7 @@ class ColorPicker {
     /**
      * テキストからカラーコードを抽出
      */
-    private readColorCode = (text: string): ColorCode => {
+    const readColorCode = (text: string): ColorCode => {
         if (text.length !== 7) {
             // 文字数が7文字ではない
             throw new NotColorCodeException();
@@ -143,14 +61,14 @@ class ColorPicker {
      * カーソルが変わるたびに、カーソル位置のテキストを読み取り、
      * WebView に送る
      */
-    changeCursor = (editor: vscode.TextEditor) => {
+    const changeCursor = (editor: vscode.TextEditor) => {
         // カーソルのテキスト読み取り
-        const text = this.readCursorText(editor);
+        const text = readCursorText(editor);
 
         // テキストからカラーコード読み取り
         let color: ColorCode | null = null;
         try {
-            color = this.readColorCode(text);
+            color = readColorCode(text);
 
         } catch (NotColorCodeException) {
             // カーソルのテキストが読み取れなかった
@@ -158,20 +76,20 @@ class ColorPicker {
         }
 
         // カーソルのカラーコードとしてメッセージをWebViewに送る
-        this.webViewPanel?.webview.postMessage({
+        panel?.webview.postMessage({
             type: 'cursor-color',
             color,
         } as CursorColorMessage);
     };
 
     // カーソル位置のテキスト
-    changeToNewColor = (editor: vscode.TextEditor, newColor: ColorCode) => {
+    const changeToNewColor = (editor: vscode.TextEditor, newColor: ColorCode) => {
         // カーソルのテキスト読み取り
-        const text = this.readCursorText(editor);
+        const text = readCursorText(editor);
 
         // テキストからカラーコード読み取り
         try {
-            this.readColorCode(text);
+            readColorCode(text);
         } catch (NotColorCodeException) {
             // カーソルのテキストがカラーコードではないので編集しない
             return;
@@ -195,15 +113,86 @@ class ColorPicker {
             editBuilder.replace(replaceRange, newText);
         });
     };
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('color-picker.show', () => {
+            if (panel) {
+                panel.reveal(vscode.ViewColumn.One);
+            } else {
+                const disposables: vscode.Disposable[] = [];
+
+                // extension 内の webview ディレクトリのファイルパス
+                const webviewResourcePath = path.join(context.extensionPath, 'webview');
+                // 拡張機能の JavaScript での URI
+                const webviewResourceRootLocalURI = vscode.Uri.file(webviewResourcePath);
+
+                panel = vscode.window.createWebviewPanel(
+                    'color-picker',
+                    'color picker',
+                    vscode.ViewColumn.Beside,
+                    {
+                        enableScripts: true,
+
+                        // 追加
+                        // localResourceRoots: [webviewResourceRootLocalURI],
+                    }
+                );
+
+                // WebView での URI
+                const webviewResourceRootInWebviewURI = panel.webview.asWebviewUri(webviewResourceRootLocalURI);
+
+                // HTML の拡張機能内のURIを書き換える
+                const html = webviewHTML.replace("{{resourceRoot}}", webviewResourceRootInWebviewURI.toString());
+
+                // webview の HTML を設定する
+                panel.webview.html = html;
+
+                // webview からのメッセージの受取
+                disposables.push(
+                    panel.webview.onDidReceiveMessage((mes: LogMessage | ChangeColorMessage) => {
+                        if (mes.type === "log") {
+                            console.log("webview log:", mes.message);
+                        }
+                        if (mes.type === "change-color") {
+                            if (latestEditor && !latestEditor.document.isClosed) {
+                                changeToNewColor(latestEditor, mes.newColor);
+                            }
+                        }
+                    })
+                );
+
+                // カーソルの変更
+                disposables.push(
+                    vscode.window.onDidChangeTextEditorSelection(
+                        (e) => {
+                            console.log(`onDidChangeTextEditorSelection`);
+                            latestEditor = e.textEditor;
+                            changeCursor(e.textEditor);
+                        }
+                    )
+                );
+
+                // webview リソースが削除された時のクリーンアップ
+                disposables.push(
+                    panel.onDidDispose(
+                        () => {
+                            // WebViewPanel のインスタンス解除
+                            panel = null;
+
+                            // WebView を開いてから仕込んだイベントを解除する
+                            disposables.forEach((disposes) => { disposes.dispose(); });
+                        },
+                    )
+                );
+
+            }
+        })
+
+    );
 }
 
-/**
- * WebView から参照できるURL に書き換える
- */
-function getWebviewContent(resourceRoot: string): string {
-    // webview から参照できる URL に置き換える
-    return webviewHTML.replace("{{resourceRoot}}", resourceRoot);
-}
+class NotColorCodeException extends Error { };
+
 
 // this method is called when your extension is deactivated
 export function deactivate() { }

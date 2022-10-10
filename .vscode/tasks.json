@@ -7,7 +7,7 @@
       "label": "build extension",
       "type": "shell",
       "command": ["npx", "webpack", "-c", "extension.webpack.config.js"],
-      "problemMatcher": "$ts-webpack-watch",
+      "problemMatcher": "$ts-webpack",
       "isBackground": true,
       "group": {
         "kind": "build",
@@ -19,7 +19,7 @@
       "label": "build webview",
       "type": "shell",
       "command": ["npx", "webpack", "-c", "webview.webpack.config.js"],
-      "problemMatcher": "$ts-webpack-watch",
+      "problemMatcher": "$ts-webpack",
       "isBackground": true,
       "group": {
         "kind": "build",
