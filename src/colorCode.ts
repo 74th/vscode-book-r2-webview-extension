@@ -1,4 +1,9 @@
-import { ColorCode } from "./message";
+// カラーコード
+export interface ColorCode {
+    red: number;
+    green: number;
+    blue: number;
+}
 
 export function makeColorCodeText(color: ColorCode): string {
     // 16進数変換

@@ -83,12 +83,10 @@ function loadColorCode() {
  * スライダーを操作（ドラッグ中）
  */
 function slideColor() {
-    // カラーコードを表示
     const newColor = loadColorCode();
-    const codeText = (0, colorCode_1.makeColorCodeText)(newColor);
     // WebView 内で表示
+    const codeText = (0, colorCode_1.makeColorCodeText)(newColor);
     colorCell.style.backgroundColor = codeText;
-    saveState(newColor);
 }
 sliderRed.addEventListener("input", slideColor);
 sliderGreen.addEventListener("input", slideColor);
@@ -98,6 +96,11 @@ sliderBlue.addEventListener("input", slideColor);
  */
 function changeSlider() {
     const newColor = loadColorCode();
+    // WebView 内で表示
+    const codeText = (0, colorCode_1.makeColorCodeText)(newColor);
+    colorCell.style.backgroundColor = codeText;
+    // ステートに保存
+    saveState(newColor);
     // 拡張機能内に送信
     vscode.postMessage({
         type: "change-color",
@@ -131,16 +134,6 @@ function showColor(color) {
     colorCell.style.backgroundColor = codeText;
 }
 /**
- * ステートの読み込み
- */
-function loadState() {
-    const state = vscode.getState();
-    if (!state) {
-        return;
-    }
-    showColor(state.pickerColor);
-}
-/**
  * ステートの保存
  */
 function saveState(color) {
@@ -153,6 +146,16 @@ window.addEventListener("message", (e) => {
         receiveColorFromEditor(e.data);
     }
 });
+/**
+ * ステートの読み込み
+ */
+function loadState() {
+    const state = vscode.getState();
+    if (!state) {
+        return;
+    }
+    showColor(state.pickerColor);
+}
 // ステートから読み込む
 loadState();
 

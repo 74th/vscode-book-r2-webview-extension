@@ -1,5 +1,5 @@
-import { makeColorCodeText } from "./colorCode";
-import { ChangeColorMessage, ColorCode, CursorColorMessage } from "./message";
+import { ColorCode, makeColorCodeText } from "./colorCode";
+import { ChangeColorMessage, CursorColorMessage, LogMessage } from "./message";
 
 const vscode = acquireVsCodeApi();
 
@@ -12,7 +12,7 @@ function log(mes: string) {
     vscode.postMessage({
         type: "log",
         message: mes,
-    });
+    } as LogMessage);
 }
 
 // HTML要素
@@ -35,14 +35,11 @@ function loadColorCode(): ColorCode {
  * スライダーを操作（ドラッグ中）
  */
 function slideColor() {
-    // カラーコードを表示
     const newColor = loadColorCode();
-    const codeText = makeColorCodeText(newColor);
 
     // WebView 内で表示
+    const codeText = makeColorCodeText(newColor);
     colorCell.style.backgroundColor = codeText;
-
-    saveState(newColor);
 }
 
 sliderRed.addEventListener("input", slideColor);
@@ -54,6 +51,13 @@ sliderBlue.addEventListener("input", slideColor);
  */
 function changeSlider() {
     const newColor = loadColorCode();
+
+    // WebView 内で表示
+    const codeText = makeColorCodeText(newColor);
+    colorCell.style.backgroundColor = codeText;
+
+    // ステートに保存
+    saveState(newColor);
 
     // 拡張機能内に送信
     vscode.postMessage({
@@ -94,18 +98,6 @@ function showColor(color: ColorCode) {
 }
 
 /**
- * ステートの読み込み
- */
-function loadState() {
-    const state: State | undefined = vscode.getState();
-    if (!state) {
-        return;
-    }
-
-    showColor(state.pickerColor);
-}
-
-/**
  * ステートの保存
  */
 function saveState(color: ColorCode) {
@@ -120,6 +112,18 @@ window.addEventListener("message", (e) => {
         receiveColorFromEditor(e.data as CursorColorMessage);
     }
 });
+
+/**
+ * ステートの読み込み
+ */
+function loadState() {
+    const state: State | undefined = vscode.getState();
+    if (!state) {
+        return;
+    }
+
+    showColor(state.pickerColor);
+}
 
 // ステートから読み込む
 loadState();

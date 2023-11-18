@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 import webviewHTML from "../webview/index.html";
-import { ChangeColorMessage, ColorCode, CursorColorMessage, LogMessage } from "./message";
-import { makeColorCodeText } from "./colorCode";
+import { ChangeColorMessage, CursorColorMessage, LogMessage } from "./message";
+import { ColorCode, makeColorCodeText } from "./colorCode";
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -19,15 +19,11 @@ export function activate(context: vscode.ExtensionContext) {
         const document = editor.document;
 
         // カーソルの Position
-        const cursorPosition: vscode.Position = editor.selection.active;
-        // カーソル座標をオフセットに変換
-        const cursorOffset: number = document.offsetAt(cursorPosition);
-        // 後ろ7文字目を、オフセットで計算
-        const readRangeEndOffset = cursorOffset + 7;
-        // オフセットを Position に変換
-        const readRangeEndPosition = document.positionAt(readRangeEndOffset);
+        const startPos: vscode.Position = editor.selection.active;
+        // カーソル位置から7文字先の Position
+        const endPos = new vscode.Position(startPos.line, startPos.character + 7);
         // カーソル位置から後ろ7文字のレンジを作成
-        const readRange = new vscode.Range(cursorPosition, readRangeEndPosition);
+        const readRange = new vscode.Range(startPos, endPos);
         // Range の範囲のテキストを読み取る
         const text = document.getText(readRange);
 
@@ -95,15 +91,10 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        // ドキュメント
-        const document = editor.document;
-
-        // カーソルの Position
-        const cursorPosition: vscode.Position = editor.selection.active;
-        const cursorOffset: number = document.offsetAt(cursorPosition);
-        const readRangeEndOffset = cursorOffset + 7;
-        const readRangeEndPosition = document.positionAt(readRangeEndOffset);
-        const replaceRange = new vscode.Range(cursorPosition, readRangeEndPosition);
+        // カラーコードの範囲
+        const startPos: vscode.Position = editor.selection.active;
+        const endPos = new vscode.Position(startPos.line, startPos.character + 7);
+        const replaceRange = new vscode.Range(startPos, endPos);
 
         // カラーコードのテキスト
         const newText = makeColorCodeText(newColor);

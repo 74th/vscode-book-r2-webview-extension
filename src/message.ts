@@ -1,14 +1,8 @@
+import { ColorCode } from "./colorCode";
 
 export interface LogMessage {
     type: "log";
     message: string
-}
-
-// カラーコード
-export interface ColorCode {
-    red: number;
-    green: number;
-    blue: number;
 }
 
 // カーソルのカラーコードを伝えるメッセージ
