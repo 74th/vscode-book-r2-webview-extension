@@ -53,5 +53,14 @@
   },
   "dependencies": {
     "npm-run-all2": "^9.0.4"
+  },
+  "overrides": {
+    "minimatch@^10.2.2": "^11.0.8",
+    "mocha": {
+      "minimatch": "^11.0.8",
+      "glob": {
+        "minimatch": "^11.0.8"
+      }
+    }
   }
 }
