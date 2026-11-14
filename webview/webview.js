@@ -7,7 +7,7 @@
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.makeColorCodeText = void 0;
+exports.makeColorCodeText = makeColorCodeText;
 function makeColorCodeText(color) {
     // 16進数変換
     function number2hex(n) {
@@ -19,7 +19,6 @@ function makeColorCodeText(color) {
     const blue = number2hex(color.blue);
     return `#${red}${green}${blue}`;
 }
-exports.makeColorCodeText = makeColorCodeText;
 ;
 
 
@@ -27,17 +26,17 @@ exports.makeColorCodeText = makeColorCodeText;
 /******/ 	]);
 /************************************************************************/
 /******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
+/******/ 	const __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		const cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
 /******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 		const module = __webpack_module_cache__[moduleId] = {
 /******/ 			// no module.id needed
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
@@ -51,10 +50,10 @@ exports.makeColorCodeText = makeColorCodeText;
 /******/ 	}
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+let __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
-var exports = __webpack_exports__;
+let exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const colorCode_1 = __webpack_require__(1);
